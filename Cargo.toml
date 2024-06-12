@@ -4,8 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-rayon = { version = "1.10.0", optional = true }
-serde = { version = "1.0.203", optional = true, features = ["serde_derive"] }
+rayon = { version = ">=1.0.0", optional = true }
+serde = { version = ">=1.0.0", optional = true, features = ["serde_derive"] }
 
 [features]
 rayon = ["dep:rayon"]
