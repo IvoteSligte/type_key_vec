@@ -96,6 +96,18 @@ where
     }
 }
 
+impl<K, V> From<Vec<V>> for TypeKeyVec<K, V>
+where
+    K: Into<usize>,
+{
+    fn from(inner: Vec<V>) -> Self {
+        Self {
+            inner,
+            phantom: PhantomData,
+        }
+    }
+}
+
 impl<'data, K, V> IntoIterator for &'data TypeKeyVec<K, V>
 where
     K: Into<usize>,
