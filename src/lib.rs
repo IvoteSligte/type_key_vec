@@ -25,22 +25,40 @@ impl<K, V> TypeKeyVec<K, V>
 where
     K: Into<usize>,
 {
+    #[inline]
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    #[inline]
+    pub fn with_capacity(capacity: usize) -> Self {
+        Self {
+            inner: Vec::with_capacity(capacity),
+            phantom: PhantomData,
+        }
+    }
+
+    #[inline]
     pub fn push(&mut self, value: V) {
         self.inner.push(value);
     }
 
+    #[inline]
     pub fn get(&self, key: K) -> Option<&V> {
         self.inner.get(key.into())
     }
 
+    #[inline]
     pub fn len(&self) -> usize {
         self.inner.len()
     }
 
+    #[inline]
     pub fn is_empty(&self) -> bool {
         self.inner.is_empty()
     }
 
+    #[inline]
     pub fn iter(&self) -> std::slice::Iter<V> {
         self.inner.iter()
     }
