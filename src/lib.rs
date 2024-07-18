@@ -12,6 +12,7 @@ use serde::{Deserialize, Serialize};
 /// A vector that can only be indexed by a specific type
 ///
 /// Used for air-tight indexing with newtypes
+#[derive(Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct TypeKeyVec<K, V>
 where
@@ -71,6 +72,18 @@ where
     fn default() -> Self {
         Self {
             inner: Default::default(),
+            phantom: PhantomData,
+        }
+    }
+}
+
+impl<K, V: Clone> Clone for TypeKeyVec<K, V>
+where
+    K: Into<usize>,
+{
+    fn clone(&self) -> Self {
+        Self {
+            inner: self.inner.clone(),
             phantom: PhantomData,
         }
     }
