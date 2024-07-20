@@ -6,14 +6,15 @@ use std::{
 #[cfg(feature = "rayon")]
 use rayon::iter::{IntoParallelIterator, IntoParallelRefIterator};
 
-#[cfg(feature = "serde")]
-use serde::{Deserialize, Serialize};
-
 /// A vector that can only be indexed by a specific type
 ///
 /// Used for air-tight indexing with newtypes
 #[derive(Debug)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(
+    feature = "rkyv",
+    derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
+)]
 pub struct TypeKeyVec<K, V>
 where
     K: Into<usize>,
