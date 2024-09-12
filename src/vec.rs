@@ -17,18 +17,12 @@ use rayon::iter::{IntoParallelIterator, IntoParallelRefIterator};
     feature = "rkyv",
     derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize)
 )]
-pub struct TypeKeyVec<K, V>
-where
-    K: Into<usize>,
-{
+pub struct TypeKeyVec<K, V> {
     inner: Vec<V>,
     phantom: PhantomData<K>,
 }
 
-impl<K, V> TypeKeyVec<K, V>
-where
-    K: Into<usize>,
-{
+impl<K, V> TypeKeyVec<K, V> {
     #[inline]
     pub fn new() -> Self {
         Self::default()
@@ -43,16 +37,6 @@ where
     }
 
     #[inline]
-    pub fn push(&mut self, value: V) {
-        self.inner.push(value);
-    }
-
-    #[inline]
-    pub fn get(&self, key: K) -> Option<&V> {
-        self.inner.get(key.into())
-    }
-
-    #[inline]
     pub fn len(&self) -> usize {
         self.inner.len()
     }
@@ -60,6 +44,16 @@ where
     #[inline]
     pub fn is_empty(&self) -> bool {
         self.inner.is_empty()
+    }
+
+    #[inline]
+    pub fn push(&mut self, value: V) {
+        self.inner.push(value);
+    }
+
+    #[inline]
+    pub fn clear(&mut self) {
+        self.inner.clear()
     }
 
     #[inline]
@@ -73,10 +67,22 @@ where
     }
 }
 
-impl<K, V> Default for TypeKeyVec<K, V>
+impl<K, V> TypeKeyVec<K, V>
 where
     K: Into<usize>,
 {
+    #[inline]
+    pub fn get(&self, key: K) -> Option<&V> {
+        self.inner.get(key.into())
+    }
+
+    #[inline]
+    pub fn get_mut(&mut self, key: K) -> Option<&mut V> {
+        self.inner.get_mut(key.into())
+    }
+}
+
+impl<K, V> Default for TypeKeyVec<K, V> {
     fn default() -> Self {
         Self {
             inner: Default::default(),
@@ -85,10 +91,7 @@ where
     }
 }
 
-impl<K, V: Clone> Clone for TypeKeyVec<K, V>
-where
-    K: Into<usize>,
-{
+impl<K, V: Clone> Clone for TypeKeyVec<K, V> {
     fn clone(&self) -> Self {
         Self {
             inner: self.inner.clone(),
@@ -117,10 +120,7 @@ where
     }
 }
 
-impl<K, V> From<Vec<V>> for TypeKeyVec<K, V>
-where
-    K: Into<usize>,
-{
+impl<K, V> From<Vec<V>> for TypeKeyVec<K, V> {
     fn from(inner: Vec<V>) -> Self {
         Self {
             inner,
@@ -129,10 +129,7 @@ where
     }
 }
 
-impl<K, V> Deref for TypeKeyVec<K, V>
-where
-    K: Into<usize>,
-{
+impl<K, V> Deref for TypeKeyVec<K, V> {
     type Target = TypeKeySlice<K, V>;
 
     fn deref(&self) -> &Self::Target {
@@ -140,10 +137,7 @@ where
     }
 }
 
-impl<'data, K, V> IntoIterator for &'data TypeKeyVec<K, V>
-where
-    K: Into<usize>,
-{
+impl<'data, K, V> IntoIterator for &'data TypeKeyVec<K, V> {
     type Item = &'data V;
     type IntoIter = <&'data Vec<V> as IntoIterator>::IntoIter;
 
