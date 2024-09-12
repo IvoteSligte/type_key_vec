@@ -1,6 +1,6 @@
 use std::{
     marker::PhantomData,
-    ops::{Deref, Index, IndexMut},
+    ops::{Deref, DerefMut, Index, IndexMut},
 };
 
 use crate::TypeKeySlice;
@@ -139,6 +139,12 @@ impl<K, V> Deref for TypeKeyVec<K, V> {
 
     fn deref(&self) -> &Self::Target {
         self.inner.as_slice().as_ref()
+    }
+}
+
+impl<K, V> DerefMut for TypeKeyVec<K, V> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        self.inner.as_mut_slice().as_mut()
     }
 }
 

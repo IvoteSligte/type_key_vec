@@ -80,6 +80,13 @@ impl<K, V> AsRef<TypeKeySlice<K, V>> for [V] {
     }
 }
 
+impl<K, V> AsMut<TypeKeySlice<K, V>> for [V] {
+    fn as_mut(&mut self) -> &mut TypeKeySlice<K, V> {
+        // SAFETY: same size, alignment, etc
+        unsafe { std::mem::transmute(self) }
+    }
+}
+
 impl<'data, K, V> IntoIterator for &'data TypeKeySlice<K, V> {
     type Item = &'data V;
     type IntoIter = <&'data [V] as IntoIterator>::IntoIter;
