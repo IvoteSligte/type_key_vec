@@ -6,7 +6,7 @@ use std::{
 use crate::TypeKeySlice;
 
 #[cfg(feature = "rayon")]
-use rayon::iter::{IntoParallelIterator, IntoParallelRefIterator};
+use rayon::iter::IntoParallelIterator;
 
 /// A vector that can only be indexed by a specific type
 ///
@@ -137,12 +137,44 @@ impl<K, V> Deref for TypeKeyVec<K, V> {
     }
 }
 
+impl<K, V> IntoIterator for TypeKeyVec<K, V> {
+    type Item = V;
+    type IntoIter = <Vec<V> as IntoIterator>::IntoIter;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.inner.into_iter()
+    }
+}
+
 impl<'data, K, V> IntoIterator for &'data TypeKeyVec<K, V> {
     type Item = &'data V;
     type IntoIter = <&'data Vec<V> as IntoIterator>::IntoIter;
 
     fn into_iter(self) -> Self::IntoIter {
         self.inner.iter()
+    }
+}
+
+impl<'data, K, V> IntoIterator for &'data mut TypeKeyVec<K, V> {
+    type Item = &'data mut V;
+    type IntoIter = <&'data mut Vec<V> as IntoIterator>::IntoIter;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.inner.iter_mut()
+    }
+}
+
+#[cfg(feature = "rayon")]
+impl<K, V> IntoParallelIterator for TypeKeyVec<K, V>
+where
+    K: Into<usize>,
+    V: Send,
+{
+    type Item = V;
+    type Iter = <Vec<V> as IntoParallelIterator>::Iter;
+
+    fn into_par_iter(self) -> Self::Iter {
+        self.inner.into_par_iter()
     }
 }
 
@@ -156,6 +188,20 @@ where
     type Iter = <&'data Vec<V> as IntoParallelIterator>::Iter;
 
     fn into_par_iter(self) -> Self::Iter {
-        self.inner.par_iter()
+        (&self.inner).into_par_iter()
+    }
+}
+
+#[cfg(feature = "rayon")]
+impl<'data, K, V> IntoParallelIterator for &'data mut TypeKeyVec<K, V>
+where
+    K: Into<usize>,
+    V: Send,
+{
+    type Item = &'data mut V;
+    type Iter = <&'data mut Vec<V> as IntoParallelIterator>::Iter;
+
+    fn into_par_iter(self) -> Self::Iter {
+        (&mut self.inner).into_par_iter()
     }
 }
