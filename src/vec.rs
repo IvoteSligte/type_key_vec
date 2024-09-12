@@ -62,11 +62,6 @@ impl<K, V> TypeKeyVec<K, V> {
     }
 
     #[inline]
-    pub fn iter(&self) -> std::slice::Iter<V> {
-        self.inner.iter()
-    }
-
-    #[inline]
     pub fn into_vec(self) -> Vec<V> {
         self.inner
     }

@@ -37,6 +37,11 @@ impl<K, V> TypeKeySlice<K, V> {
     }
 
     #[inline]
+    pub fn iter_mut(&mut self) -> std::slice::IterMut<V> {
+        self.inner.iter_mut()
+    }
+
+    #[inline]
     pub fn as_slice(&self) -> &[V] {
         &self.inner
     }
