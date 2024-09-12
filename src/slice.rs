@@ -24,6 +24,14 @@ impl<K, V> TypeKeySlice<K, V> {
     }
 
     #[inline]
+    pub fn fill(&mut self, value: V)
+    where
+        V: Clone,
+    {
+        self.inner.fill(value);
+    }
+
+    #[inline]
     pub fn iter(&self) -> std::slice::Iter<V> {
         self.inner.iter()
     }

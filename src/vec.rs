@@ -37,6 +37,11 @@ impl<K, V> TypeKeyVec<K, V> {
     }
 
     #[inline]
+    pub unsafe fn set_len(&mut self, new_len: usize) {
+        self.inner.set_len(new_len);
+    }
+
+    #[inline]
     pub fn len(&self) -> usize {
         self.inner.len()
     }
