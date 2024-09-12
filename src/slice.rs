@@ -1,7 +1,7 @@
 use std::{marker::PhantomData, ops::Index};
 
 #[cfg(feature = "rayon")]
-use rayon::iter::{IntoParallelIterator, IntoParallelRefIterator};
+use rayon::iter::IntoParallelIterator;
 
 /// A vector that can only be indexed by a specific type
 ///
@@ -81,6 +81,15 @@ impl<'data, K, V> IntoIterator for &'data TypeKeySlice<K, V> {
     }
 }
 
+impl<'data, K, V> IntoIterator for &'data mut TypeKeySlice<K, V> {
+    type Item = &'data mut V;
+    type IntoIter = <&'data mut [V] as IntoIterator>::IntoIter;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.inner.iter_mut()
+    }
+}
+
 #[cfg(feature = "rayon")]
 impl<'data, K, V> IntoParallelIterator for &'data TypeKeySlice<K, V>
 where
@@ -90,6 +99,19 @@ where
     type Iter = <&'data [V] as IntoParallelIterator>::Iter;
 
     fn into_par_iter(self) -> Self::Iter {
-        self.inner.par_iter()
+        (&self.inner).into_par_iter()
+    }
+}
+
+#[cfg(feature = "rayon")]
+impl<'data, K, V> IntoParallelIterator for &'data mut TypeKeySlice<K, V>
+where
+    V: Send + Sync,
+{
+    type Item = &'data mut V;
+    type Iter = <&'data mut [V] as IntoParallelIterator>::Iter;
+
+    fn into_par_iter(self) -> Self::Iter {
+        (&mut self.inner).into_par_iter()
     }
 }
