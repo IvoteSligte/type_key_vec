@@ -7,6 +7,7 @@ use crate::TypeKeySlice;
 
 #[cfg(feature = "rayon")]
 use rayon::iter::IntoParallelIterator;
+use rayon::iter::ParallelExtend;
 
 /// A vector that can only be indexed by a specific type
 ///
@@ -23,9 +24,11 @@ pub struct TypeKeyVec<K, V> {
 }
 
 impl<K, V> TypeKeyVec<K, V> {
-    #[inline]
-    pub fn new() -> Self {
-        Self::default()
+    pub const fn new() -> Self {
+        Self {
+            inner: Vec::new(),
+            phantom: PhantomData,
+        }
     }
 
     #[inline]
@@ -84,10 +87,7 @@ where
 
 impl<K, V> Default for TypeKeyVec<K, V> {
     fn default() -> Self {
-        Self {
-            inner: Default::default(),
-            phantom: PhantomData,
-        }
+        Self::new()
     }
 }
 
@@ -209,5 +209,21 @@ where
 
     fn into_par_iter(self) -> Self::Iter {
         (&mut self.inner).into_par_iter()
+    }
+}
+
+impl<'data, K, V> Extend for TypeKeyVec<K, V> {
+    fn extend<T: IntoIterator<Item = A>>(&mut self, iter: T) {
+        self.inner.extend(iter);
+    }
+}
+
+#[cfg(feature = "rayon")]
+impl<'data, K, V> ParallelExtend for TypeKeyVec<K, V> {
+    fn par_extend<I>(&mut self, par_iter: I)
+    where
+        I: IntoParallelIterator<Item = V>,
+    {
+        self.inner.par_extend(par_iter);
     }
 }
