@@ -42,11 +42,13 @@ impl<K, V> TypeKeySlice<K, V> {
     }
 
     #[inline]
-    pub fn enumerate(&self) -> Enumerate<K, V> {
-        Enumerate {
-            iter: self.iter().enumerate(),
-            phantom: PhantomData,
-        }
+    pub fn enumerate(&self) -> Enumerate<K, std::slice::Iter<V>> {
+        Enumerate::new(self.iter())
+    }
+
+    #[inline]
+    pub fn enumerate_mut(&mut self) -> Enumerate<K, std::slice::IterMut<V>> {
+        Enumerate::new(self.iter_mut())
     }
 
     #[inline]
@@ -144,18 +146,52 @@ where
     }
 }
 
-pub struct Enumerate<'a, K, V> {
-    iter: std::iter::Enumerate<std::slice::Iter<'a, V>>,
+pub struct Enumerate<K, I> {
+    iter: std::iter::Enumerate<I>,
     phantom: PhantomData<K>,
 }
 
-impl<'a, K, V> Iterator for Enumerate<'a, K, V>
+impl<K, I> Enumerate<K, I> {
+    pub fn new(iter: I) -> Self
+    where
+        I: Iterator,
+    {
+        Self {
+            iter: iter.enumerate(),
+            phantom: PhantomData,
+        }
+    }
+}
+
+impl<K, I> Iterator for Enumerate<K, I>
 where
     K: From<usize>,
+    I: Iterator,
 {
-    type Item = (K, &'a V);
+    type Item = (K, I::Item);
 
     fn next(&mut self) -> Option<Self::Item> {
         self.iter.next().map(|(i, v)| (K::from(i), v))
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.iter.size_hint()
+    }
+}
+
+impl<K, I> ExactSizeIterator for Enumerate<K, I>
+where
+    K: From<usize>,
+    I: ExactSizeIterator,
+{
+}
+
+impl<K, I> DoubleEndedIterator for Enumerate<K, I>
+where
+    K: From<usize>,
+    I: ExactSizeIterator + DoubleEndedIterator,
+{
+    fn next_back(&mut self) -> Option<Self::Item> {
+        self.iter.next_back().map(|(i, v)| (K::from(i), v))
     }
 }
