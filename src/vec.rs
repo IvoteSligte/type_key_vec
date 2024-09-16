@@ -218,7 +218,10 @@ impl<'data, K, V> Extend<V> for TypeKeyVec<K, V> {
 }
 
 #[cfg(feature = "rayon")]
-impl<'data, K, V> ParallelExtend<V> for TypeKeyVec<K, V> {
+impl<'data, K, V> ParallelExtend<V> for TypeKeyVec<K, V>
+where
+    V: Send,
+{
     fn par_extend<I>(&mut self, par_iter: I)
     where
         I: IntoParallelIterator<Item = V>,
