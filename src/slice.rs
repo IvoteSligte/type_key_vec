@@ -42,6 +42,14 @@ impl<K, V> TypeKeySlice<K, V> {
     }
 
     #[inline]
+    pub fn enumerate(&self) -> Enumerate<K, V> {
+        Enumerate {
+            iter: self.iter().enumerate(),
+            phantom: PhantomData,
+        }
+    }
+
+    #[inline]
     pub fn as_slice(&self) -> &[V] {
         &self.inner
     }
@@ -133,5 +141,21 @@ where
 
     fn into_par_iter(self) -> Self::Iter {
         (&mut self.inner).into_par_iter()
+    }
+}
+
+pub struct Enumerate<'a, K, V> {
+    iter: std::iter::Enumerate<std::slice::Iter<'a, V>>,
+    phantom: PhantomData<K>,
+}
+
+impl<'a, K, V> Iterator for Enumerate<'a, K, V>
+where
+    K: From<usize>,
+{
+    type Item = (K, &'a V);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.iter.next().map(|(i, v)| (K::from(i), v))
     }
 }
